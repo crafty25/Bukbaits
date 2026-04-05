@@ -470,25 +470,6 @@ let P=[];
 const sel={};
 let fil='all';
 
-// ─── Парсинг рядка з Sheets у об'єкт товару ───
-const parseRow=row=>{
-  const v=row.values||[];
-  const get=i=>(v[i]&&v[i].formattedValue)||'';
-  const variants=get(5).split(';').map(s=>s.trim()).filter(Boolean).map(s=>{
-    const [l,w]=s.split('/');
-    return {l:(l||'').trim(),w:(w||'').trim()};
-  });
-  return {
-    id:get(0),
-    name:get(1),
-    type:get(2).toLowerCase().replace(/\s/g,''),
-    price:parseFloat(get(3))||0,
-    old:get(4)?parseFloat(get(4)):null,
-    vars:variants,
-    img:get(6)||''
-  };
-};
-
 // ─── Завантаження з Sheets або кешу ───
 const loadProducts=async()=>{
   // перевіряємо кеш
@@ -513,12 +494,27 @@ const loadProducts=async()=>{
     </div>`;
 
   try{
-    const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEETS_ID}/sheets/Sheet1?includeGridData=true&key=${SHEETS_KEY}`;
+    const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEETS_ID}/values/Sheet1?key=${SHEETS_KEY}`;
     const res=await fetch(url);
     if(!res.ok) throw new Error('Sheets API error: '+res.status);
     const json=await res.json();
-    const rows=(json.sheets[0].data[0].rowData||[]).slice(1); // пропускаємо заголовок
-    P=rows.map(parseRow).filter(p=>p.name&&p.price);
+    const rows=(json.values||[]).slice(1); // пропускаємо заголовок
+    P=rows.map(row=>{
+      const get=i=>(row[i]||'').trim();
+      const variants=get(5).split(';').map(s=>s.trim()).filter(Boolean).map(s=>{
+        const [l,w]=s.split('/');
+        return {l:(l||'').trim(),w:(w||'').trim()};
+      });
+      return {
+        id:get(0),
+        name:get(1),
+        type:get(2).toLowerCase().replace(/\s/g,''),
+        price:parseFloat(get(3))||0,
+        old:get(4)?parseFloat(get(4)):null,
+        vars:variants,
+        img:get(6)||''
+      };
+    }).filter(p=>p.name&&p.price);
     P.forEach(p=>sel[p.id]=null);
     // зберігаємо в кеш
     sessionStorage.setItem(CACHE_KEY,JSON.stringify({data:P,ts:Date.now()}));
@@ -617,3 +613,4 @@ loadProducts();
 </script>
 </body>
 </html>
+
