@@ -460,62 +460,115 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 </button>
 
 <script>
-const P=[
-  {id:1,name:'Срібна Мара',type:'atom',price:180,old:220,
-    vars:[{l:'40mm',w:'3g'},{l:'52mm',w:'5g'},{l:'62mm',w:'7g'}]},
-  {id:2,name:'Золота Хижачка',type:'smith',price:155,old:null,
-    vars:[{l:'38mm',w:'4g'},{l:'48mm',w:'6g'}]},
-  {id:3,name:'Темний Пілот',type:'forest',price:210,old:null,
-    vars:[{l:'50mm',w:'10g'},{l:'60mm',w:'14g'},{l:'72mm',w:'18g'}]},
-  {id:4,name:'Копальня',type:'waterland',price:245,old:290,
-    vars:[{l:'55mm',w:'12g'},{l:'68mm',w:'18g'}]},
-  {id:5,name:'Річковий Дух',type:'nories',price:130,old:null,
-    vars:[{l:'32mm',w:'3g'},{l:'42mm',w:'5g'}]},
-  {id:6,name:'Троллінг-7',type:'delta',price:310,old:null,
-    vars:[{l:'70mm',w:'18g'},{l:'85mm',w:'22g'},{l:'98mm',w:'28g'}]},
-  {id:7,name:'Лісова Кішка',type:'rodiocraft',price:195,old:null,
-    vars:[{l:'45mm',w:'6g'},{l:'58mm',w:'9g'}]},
-  {id:8,name:'Глибина',type:'atom',price:280,old:320,
-    vars:[{l:'62mm',w:'20g'},{l:'78mm',w:'25g'}]},
-];
+// ─── Google Sheets config ───
+const SHEETS_ID='18hJc1tOdfitIXJDlXrfxgEfvHXkKKXF0F-jhgiLkBz0';
+const SHEETS_KEY='AIzaSyAwU9smw33QnDQm1az2vUzZJj3NI6dlrLU';
+const CACHE_KEY='bukbaits_products';
+const CACHE_TTL=5*60*1000; // 5 хвилин
 
-// selected variant per card: {cardId: varIndex or null}
+let P=[];
 const sel={};
-P.forEach(p=>sel[p.id]=null);
+let fil='all';
 
-const luSvg=type=>{
-  const s='rgba(255,255,255,0.07)';
-  const s2='rgba(255,255,255,0.18)';
-  if(type==='casting') return `<svg width="80" height="44" viewBox="0 0 90 50"><path d="M6,25 Q20,8 52,18 Q70,25 80,25 Q70,25 52,32 Q20,42 6,25Z" fill="${s}" stroke="${s2}" stroke-width="0.8"/><line x1="80" y1="25" x2="88" y2="20" stroke="${s2}" stroke-width="1.2"/><circle cx="4" cy="25" r="4" fill="none" stroke="${s2}" stroke-width="1"/></svg>`;
-  if(type==='jigging') return `<svg width="80" height="44" viewBox="0 0 90 50"><rect x="15" y="12" width="55" height="24" rx="12" fill="${s}" stroke="${s2}" stroke-width="0.8"/><line x1="42" y1="36" x2="48" y2="46" stroke="${s2}" stroke-width="1.2"/><circle cx="50" cy="46" r="4" fill="none" stroke="${s2}" stroke-width="1"/></svg>`;
-  if(type==='spinner') return `<svg width="80" height="44" viewBox="0 0 90 50"><ellipse cx="45" cy="25" rx="18" ry="10" fill="${s}" stroke="${s2}" stroke-width="0.8"/><line x1="6" y1="25" x2="27" y2="25" stroke="${s2}" stroke-width="1.5"/><line x1="63" y1="25" x2="84" y2="25" stroke="${s2}" stroke-width="1.5"/><circle cx="84" cy="25" r="4" fill="none" stroke="${s2}" stroke-width="1"/></svg>`;
-  return `<svg width="80" height="44" viewBox="0 0 90 50"><path d="M4,25 Q12,12 34,18 L74,18 Q84,18 84,25 Q84,32 74,32 L34,32 Q12,38 4,25Z" fill="${s}" stroke="${s2}" stroke-width="0.8"/><line x1="78" y1="25" x2="88" y2="32" stroke="${s2}" stroke-width="1.2"/></svg>`;
+// ─── Парсинг рядка з Sheets у об'єкт товару ───
+const parseRow=row=>{
+  const v=row.values||[];
+  const get=i=>(v[i]&&v[i].formattedValue)||'';
+  const variants=get(5).split(';').map(s=>s.trim()).filter(Boolean).map(s=>{
+    const [l,w]=s.split('/');
+    return {l:(l||'').trim(),w:(w||'').trim()};
+  });
+  return {
+    id:get(0),
+    name:get(1),
+    type:get(2).toLowerCase().replace(/\s/g,''),
+    price:parseFloat(get(3))||0,
+    old:get(4)?parseFloat(get(4)):null,
+    vars:variants,
+    img:get(6)||''
+  };
 };
 
-let cart=[],fil='all';
+// ─── Завантаження з Sheets або кешу ───
+const loadProducts=async()=>{
+  // перевіряємо кеш
+  try{
+    const cached=sessionStorage.getItem(CACHE_KEY);
+    if(cached){
+      const {data,ts}=JSON.parse(cached);
+      if(Date.now()-ts<CACHE_TTL){
+        P=data;
+        P.forEach(p=>sel[p.id]=null);
+        render();
+        return;
+      }
+    }
+  }catch(e){}
+
+  // показуємо skeleton
+  document.getElementById('pgrid').innerHTML=`
+    <div style="grid-column:1/-1;padding:60px 0;text-align:center;color:rgba(255,255,255,0.2);
+    font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase">
+      Завантаження...
+    </div>`;
+
+  try{
+    const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEETS_ID}/sheets/Sheet1?includeGridData=true&key=${SHEETS_KEY}`;
+    const res=await fetch(url);
+    if(!res.ok) throw new Error('Sheets API error: '+res.status);
+    const json=await res.json();
+    const rows=(json.sheets[0].data[0].rowData||[]).slice(1); // пропускаємо заголовок
+    P=rows.map(parseRow).filter(p=>p.name&&p.price);
+    P.forEach(p=>sel[p.id]=null);
+    // зберігаємо в кеш
+    sessionStorage.setItem(CACHE_KEY,JSON.stringify({data:P,ts:Date.now()}));
+    render();
+  }catch(e){
+    console.error('Помилка завантаження товарів:',e);
+    document.getElementById('pgrid').innerHTML=`
+      <div style="grid-column:1/-1;padding:60px 0;text-align:center;color:rgba(255,100,100,0.6);
+      font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase">
+        Помилка завантаження. Спробуйте пізніше.
+      </div>`;
+  }
+};
+
+const luSvg=()=>{
+  const s='rgba(255,255,255,0.07)';
+  const s2='rgba(255,255,255,0.18)';
+  return `<svg width="80" height="44" viewBox="0 0 90 50"><path d="M6,25 Q20,8 52,18 Q70,25 80,25 Q70,25 52,32 Q20,42 6,25Z" fill="${s}" stroke="${s2}" stroke-width="0.8"/><line x1="80" y1="25" x2="88" y2="20" stroke="${s2}" stroke-width="1.2"/><circle cx="4" cy="25" r="4" fill="none" stroke="${s2}" stroke-width="1"/></svg>`;
+};
+
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+let cart=[];
 
 const render=()=>{
   const shown=fil==='all'?P:P.filter(x=>x.type===fil);
   document.getElementById('pgrid').innerHTML=shown.map(p=>{
+    const sid=p.id.replace('#','');
     const vars=p.vars.map((v,i)=>`
-      <button class="pvar${sel[p.id]===i?' sel':''}" onclick="pickVar(${p.id},${i})">${v.l} / ${v.w}</button>
+      <button class="pvar${sel[p.id]===i?' sel':''}" onclick="pickVar('${p.id}',${i})">${esc(v.l)} / ${esc(v.w)}</button>
     `).join('');
-    return `<div class="pcard" id="card-${p.id}">
+    const img=p.img
+      ?`<img src="${esc(p.img)}" alt="${esc(p.name)}" width="400" height="300" loading="${['#001','#002'].includes(p.id)?'eager':'lazy'}" style="width:100%;height:100%;object-fit:cover;">`
+      :`<div class="pcard-img-inner">${luSvg()}</div>`;
+    return `<div class="pcard" id="card-${sid}">
       <div class="pcard-img">
-        <div class="pcard-img-inner">${luSvg(p.type)}</div>
-        <div class="pcard-num">#${String(p.id).padStart(3,'0')}</div>
+        ${img}
+        <div class="pcard-num">${esc(p.id)}</div>
       </div>
       <div class="pcard-body">
         <div class="pcard-type">${p.type==='rodiocraft'?'Rodio Craft':p.type.charAt(0).toUpperCase()+p.type.slice(1)}</div>
-        <div class="pcard-name">${p.name}</div>
+        <div class="pcard-name">${esc(p.name)}</div>
         <div class="pcard-vars">${vars}</div>
-        <div class="pvar-hint" id="hint-${p.id}">↑ оберіть вагу</div>
+        <div class="pvar-hint" id="hint-${sid}">↑ оберіть вагу</div>
         <div class="pcard-footer">
           <div class="pcard-price">
             <span class="price-val">${p.price}</span><span class="price-cur">грн</span>
             ${p.old?`<span class="price-old">${p.old} грн</span>`:''}
           </div>
-          <button class="padd" onclick="add(${p.id})">+</button>
+          <button class="padd" onclick="add('${p.id}')">+</button>
         </div>
       </div>
     </div>`;
@@ -524,11 +577,10 @@ const render=()=>{
 
 const pickVar=(id,i)=>{
   sel[id]=i;
-  // update variant buttons in this card only
-  const card=document.getElementById('card-'+id);
+  const sid=id.replace('#','');
+  const card=document.getElementById('card-'+sid);
   card.querySelectorAll('.pvar').forEach((b,idx)=>b.classList.toggle('sel',idx===i));
-  // hide hint if was shown
-  document.getElementById('hint-'+id).classList.remove('show');
+  document.getElementById('hint-'+sid).classList.remove('show');
 };
 
 document.getElementById('filters').addEventListener('click',e=>{
@@ -540,8 +592,8 @@ document.getElementById('filters').addEventListener('click',e=>{
 const add=id=>{
   const p=P.find(x=>x.id===id);if(!p)return;
   if(sel[id]===null){
-    // show hint, auto-hide after 2.5s
-    const hint=document.getElementById('hint-'+id);
+    const sid=id.replace('#','');
+    const hint=document.getElementById('hint-'+sid);
     hint.classList.add('show');
     clearTimeout(hint._t);
     hint._t=setTimeout(()=>hint.classList.remove('show'),2500);
@@ -561,7 +613,7 @@ const upCart=()=>{
   document.getElementById('fcart').classList.toggle('on',t>0);
 };
 
-render();
+loadProducts();
 </script>
 </body>
 </html>
