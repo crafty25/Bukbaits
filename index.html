@@ -132,7 +132,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--text3);
 }
 
-.filters{display:flex;border-bottom:1px solid var(--line)}
+.filters{display:flex;border-bottom:1px solid var(--line);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.filters::-webkit-scrollbar{display:none;}
 .f-btn{
   font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;
   padding:14px 24px;background:none;border:none;border-right:1px solid var(--line);
@@ -378,14 +379,148 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .fcart:hover{background:#24a814;color:var(--text)}
 .fcart-n{font-family:'Bebas Neue',sans-serif;font-size:20px;font-weight:400;letter-spacing:1px;line-height:1}
 
-/* ─── MOBILE ─── */
+/* ─── CART MODAL ─── */
+.cart-modal{
+  position:fixed;inset:0;z-index:200;
+  display:flex;align-items:flex-end;justify-content:center;
+  pointer-events:none;
+}
+@media(min-width:769px){
+  .cart-modal{align-items:center;}
+}
+.cart-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,0.7);
+  opacity:0;transition:opacity .3s;
+}
+.cart-modal.on .cart-overlay{opacity:1;pointer-events:all;}
+.cart-box{
+  position:relative;z-index:1;
+  background:#111311;
+  width:100%;max-width:520px;
+  max-height:90vh;
+  display:flex;flex-direction:column;
+  transform:translateY(40px);opacity:0;
+  transition:transform .35s cubic-bezier(.22,1,.36,1),opacity .3s;
+  border:1px solid var(--line);
+}
+@media(min-width:769px){
+  .cart-box{border-radius:0;max-height:85vh;}
+}
+.cart-modal.on .cart-box{transform:translateY(0);opacity:1;pointer-events:all;}
+
+.cart-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 24px;border-bottom:1px solid var(--line);flex-shrink:0;
+}
+.cart-head-title{
+  font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#fff;
+}
+.cart-close{
+  background:none;border:none;color:rgba(255,255,255,0.4);
+  font-size:22px;cursor:pointer;line-height:1;transition:color .2s;
+}
+.cart-close:hover{color:#fff}
+
+.cart-items{flex:1;overflow-y:auto;padding:0 24px;}
+.cart-items::-webkit-scrollbar{width:3px;}
+.cart-items::-webkit-scrollbar-track{background:transparent;}
+.cart-items::-webkit-scrollbar-thumb{background:var(--line2);}
+
+.cart-empty{
+  padding:48px 0;text-align:center;
+  font-family:'DM Sans',sans-serif;font-size:12px;letter-spacing:2px;
+  text-transform:uppercase;color:rgba(255,255,255,0.2);
+}
+.cart-item{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 0;border-bottom:1px solid var(--line);
+}
+.cart-item-img{
+  width:52px;height:52px;flex-shrink:0;
+  background:var(--bg3);overflow:hidden;
+}
+.cart-item-img img{width:100%;height:100%;object-fit:contain;}
+.cart-item-info{flex:1;min-width:0;}
+.cart-item-name{
+  font-size:13px;color:#e8e8e6;margin-bottom:3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.cart-item-var{
+  font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:0.5px;
+}
+.cart-item-price{
+  font-family:'Bebas Neue',sans-serif;font-size:20px;color:#fff;
+  letter-spacing:1px;flex-shrink:0;
+}
+.cart-item-rm{
+  background:none;border:none;color:rgba(255,255,255,0.2);
+  font-size:18px;cursor:pointer;transition:color .2s;flex-shrink:0;
+  line-height:1;padding:4px;
+}
+.cart-item-rm:hover{color:#ff6b6b}
+
+.cart-total{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 24px;border-top:1px solid var(--line);flex-shrink:0;
+}
+.cart-total-label{
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(255,255,255,0.3);
+}
+.cart-total-val{
+  font-family:'Bebas Neue',sans-serif;font-size:24px;color:#fff;letter-spacing:1px;
+}
+
+/* ─── FORM ─── */
+.cart-form{padding:16px 24px 24px;flex-shrink:0;border-top:1px solid var(--line);}
+.cart-form-title{
+  font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(255,255,255,0.3);margin-bottom:14px;
+}
+.cart-field{
+  width:100%;background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.1);
+  color:#e8e8e6;font-family:'DM Sans',sans-serif;font-size:14px;
+  padding:11px 14px;margin-bottom:10px;outline:none;
+  transition:border-color .2s;
+}
+.cart-field:focus{border-color:rgba(255,255,255,0.3);}
+.cart-field::placeholder{color:rgba(255,255,255,0.2);}
+
+.cart-contacts{
+  display:flex;gap:8px;margin-bottom:10px;
+}
+.cart-contact-btn{
+  flex:1;padding:10px 6px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.1);
+  color:rgba(255,255,255,0.4);
+  font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:1px;
+  cursor:pointer;transition:all .15s;display:flex;flex-direction:column;
+  align-items:center;gap:5px;
+}
+.cart-contact-btn svg{opacity:0.5;transition:opacity .15s;}
+.cart-contact-btn:hover{border-color:rgba(255,255,255,0.25);color:rgba(255,255,255,0.7);}
+.cart-contact-btn:hover svg{opacity:0.8;}
+.cart-contact-btn.sel{border-color:var(--acc);color:var(--acc);}
+.cart-contact-btn.sel svg{opacity:1;}
+
+.cart-submit{
+  width:100%;padding:14px;
+  background:var(--acc);border:none;
+  color:#000;font-family:'DM Sans',sans-serif;
+  font-size:12px;letter-spacing:2px;text-transform:uppercase;
+  font-weight:500;cursor:pointer;transition:background .2s;margin-top:4px;
+}
+.cart-submit:hover{background:#24a814;}
+.cart-submit:disabled{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.3);cursor:default;}
+
 @media(max-width:768px){
   .nav{padding:0 20px}
   .nav-menu{display:none}
   .hero-svg{width:92vw}
   .catalog{padding:0 0 60px}
   .catalog-head{padding:40px 16px 16px}
-  .filters{overflow-x:auto;-webkit-overflow-scrolling:touch}
   .f-btn{padding:14px 18px;white-space:nowrap;flex-shrink:0}
   .pgrid{grid-template-columns:1fr;gap:1px}
   .pcard-img{aspect-ratio:4/3}
@@ -541,6 +676,51 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   </a>
 </footer>
 
+<!-- CART MODAL -->
+<div class="cart-modal" id="cartModal">
+  <div class="cart-overlay" onclick="cartClose()"></div>
+  <div class="cart-box">
+    <div class="cart-head">
+      <div class="cart-head-title">Кошик</div>
+      <button class="cart-close" onclick="cartClose()">×</button>
+    </div>
+
+    <div class="cart-items" id="cartItems">
+      <div class="cart-empty">Кошик порожній</div>
+    </div>
+
+    <div class="cart-total" id="cartTotal" style="display:none">
+      <div class="cart-total-label">Разом</div>
+      <div class="cart-total-val"><span id="cartTotalVal">0</span> грн</div>
+    </div>
+
+    <div class="cart-form" id="cartForm" style="display:none">
+      <div class="cart-form-title">Ваші контакти</div>
+      <input class="cart-field" id="cf-name" placeholder="Імʼя" type="text">
+      <input class="cart-field" id="cf-phone" placeholder="Номер телефону" type="tel">
+      <input class="cart-field" id="cf-city" placeholder="Місто" type="text">
+
+      <div class="cart-form-title" style="margin-top:4px">Як з вами звʼязатись</div>
+      <div class="cart-contacts">
+        <button class="cart-contact-btn" data-c="telegram" onclick="pickContact('telegram')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z"/></svg>
+          Telegram
+        </button>
+        <button class="cart-contact-btn" data-c="viber" onclick="pickContact('viber')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.398.002C8.275.065 1.895.638.458 6.851c-.498 2.15-.553 4.354-.117 6.606C1.16 17.824 4.98 21.4 9.34 21.99c.338.046.7.084 1.077.108v2.054a.733.733 0 001.249.52l2.093-2.142c3.938-.196 7.554-2.254 8.808-6.032.598-1.776.773-3.665.547-5.527C22.2 2.728 16.7-.125 11.398.002zm4.97 15.2c-.38.98-1.16 1.647-2.157 1.926-.224.062-.355-.023-.487-.195a9.58 9.58 0 01-.71-1.18c-.21-.447-.09-.894.313-1.17.372-.257.763-.49 1.11-.78.417-.35.47-.744.15-1.148-.52-.648-1.088-1.256-1.657-1.864-.267-.29-.583-.322-.9-.095-.39.276-.77.564-1.14.864-.532.43-.87.963-.777 1.67a4.57 4.57 0 00.317 1.197c1.057 2.656 2.945 4.496 5.644 5.49.36.133.73.23 1.106.27.727.08 1.307-.247 1.762-.793.12-.144.23-.3.32-.463.298-.546.152-1.06-.378-1.393a28.2 28.2 0 00-1.385-.793c-.494-.256-.967-.16-1.296.25zm-4.41-9.37c2.634.234 4.563 1.81 5.14 4.415.104.47.13.953.155 1.432.024.46-.247.734-.682.716-.42-.018-.656-.283-.672-.74a5.27 5.27 0 00-.128-1.163c-.42-1.91-1.777-3.078-3.72-3.268-.326-.032-.657-.027-.983-.065-.43-.05-.662-.32-.642-.73.02-.39.27-.624.67-.638.286-.01.573.028.862.04zm.09 2.52c1.27.18 2.2 1.09 2.39 2.37.07.49.062.99.086 1.485.016.33-.174.557-.487.6-.327.043-.6-.148-.657-.477a11.15 11.15 0 00-.126-.88c-.187-.892-.7-1.374-1.6-1.468-.29-.03-.585-.017-.876-.04-.37-.028-.582-.25-.567-.597.016-.35.244-.58.6-.595.413-.016.826-.01 1.237.003zm-.12-5.04c.2.004.4.015.6.034 3.78.37 6.664 2.896 7.377 6.634.22 1.15.228 2.31.12 3.463-.018.19-.06.383-.085.575-.047.362-.29.578-.633.573-.347-.006-.574-.23-.595-.59-.017-.31.02-.623.038-.934.068-1.17.038-2.337-.2-3.485-.555-2.72-2.295-4.495-4.994-5.14-.863-.205-1.75-.24-2.635-.21-.3.01-.61.04-.912.023-.39-.02-.627-.27-.622-.628.006-.36.247-.584.632-.617.637-.054 1.273-.088 1.91-.098z"/></svg>
+          Viber
+        </button>
+        <button class="cart-contact-btn" data-c="whatsapp" onclick="pickContact('whatsapp')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp
+        </button>
+      </div>
+
+      <button class="cart-submit" id="cartSubmit" onclick="submitOrder()">Оформити замовлення</button>
+    </div>
+  </div>
+</div>
+
 <!-- LIGHTBOX -->
 <div class="lb" id="lb">
   <button class="lb-close" onclick="lbClose()">×</button>
@@ -550,7 +730,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   <div class="lb-counter" id="lb-counter"></div>
 </div>
 
-<button class="fcart" id="fcart">
+<button class="fcart" id="fcart" onclick="cartOpen()">
   Кошик — <span class="fcart-n" id="fcartN">0</span>
 </button>
 
@@ -809,7 +989,101 @@ const upCart=()=>{
   document.getElementById('cartN').textContent=t;
   document.getElementById('fcartN').textContent=t;
   document.getElementById('fcart').classList.toggle('on',t>0);
+  renderCartItems();
 };
+
+// ─── CART MODAL ───
+let contactMethod='';
+
+const cartOpen=()=>{
+  document.getElementById('cartModal').classList.add('on');
+  document.body.style.overflow='hidden';
+  renderCartItems();
+};
+const cartClose=()=>{
+  document.getElementById('cartModal').classList.remove('on');
+  document.body.style.overflow='';
+};
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    cartClose();
+    lbClose();
+  }
+});
+
+const pickContact=c=>{
+  contactMethod=c;
+  document.querySelectorAll('.cart-contact-btn').forEach(b=>{
+    b.classList.toggle('sel',b.dataset.c===c);
+  });
+};
+
+const renderCartItems=()=>{
+  const el=document.getElementById('cartItems');
+  const total=document.getElementById('cartTotal');
+  const form=document.getElementById('cartForm');
+  if(!cart.length){
+    el.innerHTML='<div class="cart-empty">Кошик порожній</div>';
+    total.style.display='none';
+    form.style.display='none';
+    return;
+  }
+  total.style.display='flex';
+  form.style.display='block';
+  const sum=cart.reduce((s,x)=>s+x.price*x.qty,0);
+  document.getElementById('cartTotalVal').textContent=sum;
+  el.innerHTML=cart.map((item,i)=>`
+    <div class="cart-item">
+      <div class="cart-item-img">
+        ${item.img?`<img src="${esc(item.img.split(',')[0].trim())}" alt="${esc(item.name)}">`:'' }
+      </div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${esc(item.name)}</div>
+        <div class="cart-item-var">${esc(item.varLabel||'')} · ${item.qty} шт</div>
+      </div>
+      <div class="cart-item-price">${item.price} грн</div>
+      <button class="cart-item-rm" onclick="removeItem(${i})">×</button>
+    </div>`).join('');
+};
+
+const removeItem=i=>{
+  cart.splice(i,1);
+  upCart();
+};
+
+const submitOrder=()=>{
+  const name=document.getElementById('cf-name').value.trim();
+  const phone=document.getElementById('cf-phone').value.trim();
+  const city=document.getElementById('cf-city').value.trim();
+  if(!name||!phone){
+    document.getElementById('cf-name').style.borderColor=name?'':'#ff6b6b';
+    document.getElementById('cf-phone').style.borderColor=phone?'':'#ff6b6b';
+    return;
+  }
+  const btn=document.getElementById('cartSubmit');
+  btn.disabled=true;btn.textContent='Відправляємо...';
+
+  const items=cart.map(x=>`• ${x.name} (${x.varLabel}) × ${x.qty} — ${x.price*x.qty} грн`).join('\n');
+  const total=cart.reduce((s,x)=>s+x.price*x.qty,0);
+  const contact=contactMethod?`Звʼязок: ${contactMethod}`:'';
+  const msg=`🎣 Нове замовлення BukBaits\n\n${items}\n\nРазом: ${total} грн\n\nІмʼя: ${name}\nТелефон: ${phone}\nМісто: ${city||'—'}\n${contact}`;
+
+  fetch('https://bukbaits-bot.YOUR_WORKER.workers.dev',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({message:msg})
+  }).then(()=>{
+    btn.textContent='Замовлення відправлено ✓';
+    cart=[];
+    setTimeout(()=>{cartClose();btn.disabled=false;btn.textContent='Оформити замовлення';upCart();},2000);
+  }).catch(()=>{
+    btn.disabled=false;btn.textContent='Помилка. Спробуйте ще раз';
+    setTimeout(()=>{btn.textContent='Оформити замовлення';},3000);
+  });
+};
+
+// cart button in nav
+document.getElementById('cartBtn').addEventListener('click',cartOpen);
 
 loadProducts();
 </script>
