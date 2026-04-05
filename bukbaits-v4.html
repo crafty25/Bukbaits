@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BukBaits — Блешні ручної роботи</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0c0a;
+  --bg2:#111311;
+  --bg3:#181a18;
+  --acc:#2EC218;
+  --acc-dim:rgba(46,194,24,0.08);
+  --blue:#4AB4F0;
+  --text:#e8e8e6;
+  --text2:#8c8c8a;
+  --text3:#4a4a48;
+  --line:rgba(255,255,255,0.07);
+  --line2:rgba(255,255,255,0.12);
+  --line-acc:rgba(46,194,24,0.15);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300;overflow-x:hidden}
+
+/* ─── NAV ─── */
+.nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 56px;height:68px;
+  border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:100;
+  background:rgba(10,12,10,0.92);
+  backdrop-filter:blur(12px);
+}
+
+.logo{
+  text-decoration:none;
+  display:flex;align-items:center;gap:0;
+  line-height:1;position:relative;
+}
+.logo-word{
+  font-family:'Bebas Neue',sans-serif;
+  font-weight:400;
+  font-size:26px;
+  letter-spacing:5px;
+  text-transform:uppercase;
+  color:#fff;
+}
+.logo-word b{color:var(--acc)}
+.logo-bar{
+  display:block;
+  position:absolute;
+  bottom:-5px;left:0;
+  width:100%;height:1px;
+  background:var(--acc);
+  opacity:0.5;
+}
+
+.nav-menu{display:flex;gap:36px;list-style:none}
+.nav-menu a{
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  color:#fff;text-decoration:none;transition:color .2s;
+}
+.nav-menu a:hover{color:var(--acc)}
+
+.cart-btn{
+  font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
+  padding:9px 20px;border:1px solid var(--line2);background:transparent;color:var(--text2);
+  cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .2s;
+}
+.cart-btn:hover{border-color:var(--acc);color:var(--acc)}
+.cart-btn-n{color:var(--acc);font-size:15px;font-family:'Bebas Neue',sans-serif;letter-spacing:1px}
+
+/* ─── HERO ─── */
+.hero{
+  min-height:70vh;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;
+  border-bottom:1px solid var(--line);
+  position:relative;
+  overflow:hidden;
+  background:radial-gradient(ellipse at 50% 60%, rgba(46,194,24,0.04) 0%, transparent 70%);
+}
+
+
+
+.hero-logo-wrap{
+  display:flex;flex-direction:column;align-items:center;
+  position:relative;z-index:1;
+  animation:fadeUp .9s cubic-bezier(.22,1,.36,1) both;
+}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(32px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* THE LOGO SVG */
+.hero-svg{
+  width:min(560px, 82vw);
+  height:auto;
+  margin-bottom:0;
+  filter:drop-shadow(0 0 40px rgba(46,194,24,0.2));
+}
+
+.hero-tagline{
+  font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;
+  color:var(--text3);margin-top:32px;
+  display:flex;align-items:center;gap:16px;
+  animation:fadeUp .9s .15s cubic-bezier(.22,1,.36,1) both;
+}
+.hero-tagline::before,.hero-tagline::after{
+  content:'';display:block;width:32px;height:1px;background:var(--text3);opacity:0.4;
+}
+
+
+
+
+
+/* ─── CATALOG ─── */
+.catalog{padding:0 56px 100px}
+
+.catalog-head{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  padding:60px 0 20px;border-bottom:1px solid var(--line);
+}
+.catalog-title{
+  font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);
+}
+.catalog-count{
+  font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--text3);
+}
+
+.filters{display:flex;border-bottom:1px solid var(--line)}
+.f-btn{
+  font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  padding:14px 24px;background:none;border:none;border-right:1px solid var(--line);
+  color:#4A8CB8;cursor:pointer;transition:all .15s;
+}
+.f-btn:last-child{border-right:none}
+.f-btn:hover{color:#7AB8DC}
+.f-btn.on{color:#7AB8DC;border-bottom:1px solid #4A8CB8;margin-bottom:-1px}
+
+/* ─── GRID 3-col ─── */
+.pgrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1px;
+  background:var(--line);
+  margin-top:1px;
+  border:1px solid var(--line);
+}
+
+.pcard{
+  background:var(--bg);
+  display:flex;flex-direction:column;
+  transition:background .15s;
+  position:relative;
+}
+.pcard:hover{background:var(--bg2)}
+
+.pcard-img{
+  width:100%;aspect-ratio:4/3;
+  background:var(--bg3);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.pcard-img-inner{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#0d110d 0%,#141814 100%);
+}
+
+.pcard-badge{
+  position:absolute;top:10px;left:10px;
+  font-family:'DM Sans',sans-serif;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;
+  padding:3px 9px;
+}
+.b-sale{background:rgba(255,160,0,0.12);border:1px solid rgba(255,160,0,0.3);color:#FFA000}
+
+.pcard-num{
+  position:absolute;bottom:10px;right:10px;
+  font-family:'DM Sans',sans-serif;font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.2);
+}
+
+.pcard-body{padding:16px 18px 20px;flex:1;display:flex;flex-direction:column}
+
+.pcard-type{
+  font-family:'DM Sans',sans-serif;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;
+  color:rgba(255,255,255,0.28);margin-bottom:6px;
+}
+.pcard-name{font-size:14px;font-weight:400;color:#e8e8e6;margin-bottom:10px;line-height:1.35;letter-spacing:0.1px}
+
+.pcard-vars{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.pvar{
+  font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:0;
+  color:rgba(255,255,255,0.5);
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  padding:4px 9px;cursor:pointer;transition:all .15s;
+  white-space:nowrap;
+}
+.pvar:hover{border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.8)}
+.pvar.sel{
+  border-color:var(--acc);color:var(--acc);
+  background:var(--acc-dim);
+}
+.pvar-hint{
+  font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:0.5px;
+  color:#FFA000;opacity:0;
+  transition:opacity .2s;margin-bottom:10px;margin-top:-8px;
+  height:14px;
+}
+.pvar-hint.show{opacity:1}
+
+.pcard-footer{display:flex;align-items:center;justify-content:space-between;margin-top:auto}
+
+.price-val{
+  font-family:'Bebas Neue',sans-serif;font-size:26px;font-weight:400;
+  letter-spacing:1px;color:#fff;line-height:1;
+}
+.price-cur{font-family:'DM Sans',sans-serif;font-size:11px;color:rgba(255,255,255,0.35);margin-left:3px}
+.price-old{
+  font-family:'DM Sans',sans-serif;font-size:11px;color:rgba(255,255,255,0.28);
+  text-decoration:line-through;display:block;margin-top:2px;
+}
+
+.padd{
+  width:34px;height:34px;border:1px solid rgba(255,255,255,0.14);background:none;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:rgba(255,255,255,0.45);font-size:18px;flex-shrink:0;
+  transition:all .15s;
+}
+.padd:hover{border-color:var(--acc);color:var(--acc);background:var(--acc-dim)}
+.padd.na{
+  cursor:default;font-size:9px;letter-spacing:1px;
+  width:auto;padding:0 10px;color:rgba(255,255,255,0.2);
+  font-family:'DM Sans',sans-serif;text-transform:uppercase;
+}
+.padd.na:hover{border-color:rgba(255,255,255,0.14);color:rgba(255,255,255,0.2);background:none}
+
+/* ─── ABOUT ─── */
+.about{
+  display:grid;grid-template-columns:1fr 1fr;
+  border-top:1px solid var(--line);
+}
+.about-text{
+  padding:80px 64px;
+  border-right:1px solid var(--line);
+  background:var(--bg2);
+}
+.about-label{
+  font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--text3);margin-bottom:36px;
+  display:flex;align-items:center;gap:12px;
+}
+.about-label::after{content:'';flex:1;height:1px;background:var(--line2)}
+
+.about-h{
+  font-family:'Bebas Neue',sans-serif;font-size:56px;font-weight:400;line-height:1;
+  letter-spacing:2px;color:var(--text);margin-bottom:28px;
+}
+.about-h span{color:var(--acc)}
+.about-p{font-size:14px;line-height:1.9;color:var(--text2);max-width:360px}
+
+.about-facts{padding:80px 64px;background:var(--bg2)}
+.about-fact{padding:22px 0;border-bottom:1px solid var(--line)}
+.about-fact:last-child{border-bottom:none}
+.fact-q{
+  font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--text3);margin-bottom:8px;
+}
+.fact-a{font-size:14px;color:var(--text2);line-height:1.6}
+
+/* ─── FOOTER ─── */
+.footer{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:24px 56px;border-top:1px solid var(--line);
+}
+
+.f-copy{font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:1px;color:#fff}
+.f-ig{
+  font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  color:#fff;text-decoration:none;transition:color .2s;
+  display:flex;align-items:center;gap:8px;
+}
+.f-ig:hover{color:var(--acc)}
+
+/* floating cart */
+.fcart{
+  position:fixed;bottom:36px;right:56px;
+  font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  padding:13px 28px;background:var(--acc);color:var(--bg);
+  display:flex;align-items:center;gap:12px;cursor:pointer;border:none;
+  transform:translateY(120px);transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+}
+.fcart.on{transform:translateY(0)}
+.fcart:hover{background:#24a814;color:var(--text)}
+.fcart-n{font-family:'Bebas Neue',sans-serif;font-size:20px;font-weight:400;letter-spacing:1px;line-height:1}
+
+/* ─── MOBILE ─── */
+@media(max-width:768px){
+  .nav{padding:0 20px}
+  .nav-menu{display:none}
+  .hero-svg{width:92vw}
+  .catalog{padding:0 16px 60px}
+  .pgrid{grid-template-columns:repeat(2,1fr)}
+  .about{grid-template-columns:1fr}
+  .about-text,.about-facts{padding:48px 24px}
+  .about-text{border-right:none;border-bottom:1px solid var(--line)}
+  .footer{flex-direction:column;gap:16px;padding:24px 20px;text-align:center}
+  .fcart{right:20px;bottom:20px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="#" class="logo">
+    <span class="logo-word">BUK<b>BAITS</b></span>
+    <span class="logo-bar"></span>
+  </a>
+  <ul class="nav-menu">
+    <li><a href="#about">Про нас</a></li>
+    <li><a href="https://instagram.com/bukbaits" target="_blank">Instagram</a></li>
+    <li><a href="https://facebook.com/bukbaits" target="_blank">Facebook</a></li>
+  </ul>
+  <button class="cart-btn" id="cartBtn">
+    Кошик <span class="cart-btn-n" id="cartN">0</span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+
+  <div class="hero-logo-wrap">
+
+    <!-- Logo SVG — точный стиль как на логотипе клиента -->
+    <svg class="hero-svg" viewBox="0 0 560 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+      <!-- Mountains — синие линии (верхний слой) -->
+      <polyline
+        points="60,200 160,90 230,155 310,70 390,140 460,95 500,130"
+        stroke="#4AB4F0" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"
+        fill="none"
+      />
+      <!-- Mountains — зеленые (нижний слой, чуть шире) -->
+      <polyline
+        points="40,210 150,105 225,168 310,88 395,155 458,110 510,145"
+        stroke="#2EC218" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"
+        fill="none"
+      />
+      <!-- Вершины — зеленые заполненные горки -->
+      <polygon
+        points="155,105 125,210 185,210"
+        fill="#2EC218" opacity="0.18"
+      />
+      <polygon
+        points="310,88 270,210 350,210"
+        fill="#2EC218" opacity="0.18"
+      />
+      <polygon
+        points="458,110 430,210 486,210"
+        fill="#2EC218" opacity="0.12"
+      />
+
+      <!-- BukBaits text -->
+      <text
+        x="280" y="268"
+        text-anchor="middle"
+        font-family="'Bebas Neue', sans-serif"
+        font-size="92"
+        letter-spacing="6"
+        fill="#2EC218"
+      >BukBaits</text>
+
+      <!-- Tagline -->
+      <text
+        x="280" y="300"
+        text-anchor="middle"
+        font-family="'DM Sans', sans-serif"
+        font-size="14"
+        letter-spacing="3"
+        fill="#4a8a4a"
+      >Bukovyna hard &amp; soft baits</text>
+
+    </svg>
+
+    <div class="hero-tagline">Коливалки ручної роботи</div>
+
+  </div>
+
+</section>
+
+<!-- CATALOG -->
+<section class="catalog" id="catalog">
+  <div class="catalog-head">
+    <div class="catalog-title">Каталог блешень ручної роботи</div>
+  </div>
+  <div class="filters" id="filters">
+    <button class="f-btn on" data-f="all">Всі</button>
+    <button class="f-btn" data-f="atom">Atom</button>
+    <button class="f-btn" data-f="smith">Smith</button>
+    <button class="f-btn" data-f="forest">Forest</button>
+    <button class="f-btn" data-f="waterland">Waterland</button>
+    <button class="f-btn" data-f="nories">Nories</button>
+    <button class="f-btn" data-f="delta">Delta</button>
+    <button class="f-btn" data-f="rodiocraft">Rodio Craft</button>
+  </div>
+  <div class="pgrid" id="pgrid"></div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="about-text">
+    <div class="about-label">Про майстра</div>
+    <h2 class="about-h">Кожна —<br><span>унікальна</span></h2>
+    <p class="about-p">Блешні BukBaits створені для наших водойм. Кожна приманка проходить шліфування, ґрунтування, фарбування і покриття лаком вручну. Без серійного виробництва — тільки ручна праця.</p>
+  </div>
+  <div class="about-facts">
+    <div class="about-fact">
+      <div class="fact-q">Оплата</div>
+      <div class="fact-a">На карту Monobank / PrivatBank після підтвердження</div>
+    </div>
+    <div class="about-fact">
+      <div class="fact-q">Доставка</div>
+      <div class="fact-a">Нова Пошта або Укрпошта · 3–5 робочих днів</div>
+    </div>
+    <div class="about-fact">
+      <div class="fact-q">Замовлення</div>
+      <div class="fact-a">Через сайт або напряму в Telegram / Instagram</div>
+    </div>
+    <div class="about-fact">
+      <div class="fact-q">Індивідуальне</div>
+      <div class="fact-a">Виготовлення під ваш стиль лову та умови</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <a href="#" class="logo">
+    <span class="logo-word" style="font-size:16px;letter-spacing:4px">BUK<b>BAITS</b></span>
+  </a>
+  <div class="f-copy">© 2026 BukBaits · Всі права захищені</div>
+  <a href="https://instagram.com/bukbaits" target="_blank" class="f-ig">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <rect x="2" y="2" width="20" height="20" rx="5"/>
+      <circle cx="12" cy="12" r="5"/>
+      <circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/>
+    </svg>
+    @bukbaits
+  </a>
+</footer>
+
+<button class="fcart" id="fcart">
+  Кошик — <span class="fcart-n" id="fcartN">0</span>
+</button>
+
+<script>
+const P=[
+  {id:1,name:'Срібна Мара',type:'atom',price:180,old:220,
+    vars:[{l:'40mm',w:'3g'},{l:'52mm',w:'5g'},{l:'62mm',w:'7g'}]},
+  {id:2,name:'Золота Хижачка',type:'smith',price:155,old:null,
+    vars:[{l:'38mm',w:'4g'},{l:'48mm',w:'6g'}]},
+  {id:3,name:'Темний Пілот',type:'forest',price:210,old:null,
+    vars:[{l:'50mm',w:'10g'},{l:'60mm',w:'14g'},{l:'72mm',w:'18g'}]},
+  {id:4,name:'Копальня',type:'waterland',price:245,old:290,
+    vars:[{l:'55mm',w:'12g'},{l:'68mm',w:'18g'}]},
+  {id:5,name:'Річковий Дух',type:'nories',price:130,old:null,
+    vars:[{l:'32mm',w:'3g'},{l:'42mm',w:'5g'}]},
+  {id:6,name:'Троллінг-7',type:'delta',price:310,old:null,
+    vars:[{l:'70mm',w:'18g'},{l:'85mm',w:'22g'},{l:'98mm',w:'28g'}]},
+  {id:7,name:'Лісова Кішка',type:'rodiocraft',price:195,old:null,
+    vars:[{l:'45mm',w:'6g'},{l:'58mm',w:'9g'}]},
+  {id:8,name:'Глибина',type:'atom',price:280,old:320,
+    vars:[{l:'62mm',w:'20g'},{l:'78mm',w:'25g'}]},
+];
+
+// selected variant per card: {cardId: varIndex or null}
+const sel={};
+P.forEach(p=>sel[p.id]=null);
+
+const luSvg=type=>{
+  const s='rgba(255,255,255,0.07)';
+  const s2='rgba(255,255,255,0.18)';
+  if(type==='casting') return `<svg width="80" height="44" viewBox="0 0 90 50"><path d="M6,25 Q20,8 52,18 Q70,25 80,25 Q70,25 52,32 Q20,42 6,25Z" fill="${s}" stroke="${s2}" stroke-width="0.8"/><line x1="80" y1="25" x2="88" y2="20" stroke="${s2}" stroke-width="1.2"/><circle cx="4" cy="25" r="4" fill="none" stroke="${s2}" stroke-width="1"/></svg>`;
+  if(type==='jigging') return `<svg width="80" height="44" viewBox="0 0 90 50"><rect x="15" y="12" width="55" height="24" rx="12" fill="${s}" stroke="${s2}" stroke-width="0.8"/><line x1="42" y1="36" x2="48" y2="46" stroke="${s2}" stroke-width="1.2"/><circle cx="50" cy="46" r="4" fill="none" stroke="${s2}" stroke-width="1"/></svg>`;
+  if(type==='spinner') return `<svg width="80" height="44" viewBox="0 0 90 50"><ellipse cx="45" cy="25" rx="18" ry="10" fill="${s}" stroke="${s2}" stroke-width="0.8"/><line x1="6" y1="25" x2="27" y2="25" stroke="${s2}" stroke-width="1.5"/><line x1="63" y1="25" x2="84" y2="25" stroke="${s2}" stroke-width="1.5"/><circle cx="84" cy="25" r="4" fill="none" stroke="${s2}" stroke-width="1"/></svg>`;
+  return `<svg width="80" height="44" viewBox="0 0 90 50"><path d="M4,25 Q12,12 34,18 L74,18 Q84,18 84,25 Q84,32 74,32 L34,32 Q12,38 4,25Z" fill="${s}" stroke="${s2}" stroke-width="0.8"/><line x1="78" y1="25" x2="88" y2="32" stroke="${s2}" stroke-width="1.2"/></svg>`;
+};
+
+let cart=[],fil='all';
+
+const render=()=>{
+  const shown=fil==='all'?P:P.filter(x=>x.type===fil);
+  document.getElementById('pgrid').innerHTML=shown.map(p=>{
+    const vars=p.vars.map((v,i)=>`
+      <button class="pvar${sel[p.id]===i?' sel':''}" onclick="pickVar(${p.id},${i})">${v.l} / ${v.w}</button>
+    `).join('');
+    return `<div class="pcard" id="card-${p.id}">
+      <div class="pcard-img">
+        <div class="pcard-img-inner">${luSvg(p.type)}</div>
+        <div class="pcard-num">#${String(p.id).padStart(3,'0')}</div>
+      </div>
+      <div class="pcard-body">
+        <div class="pcard-type">${p.type==='rodiocraft'?'Rodio Craft':p.type.charAt(0).toUpperCase()+p.type.slice(1)}</div>
+        <div class="pcard-name">${p.name}</div>
+        <div class="pcard-vars">${vars}</div>
+        <div class="pvar-hint" id="hint-${p.id}">↑ оберіть вагу</div>
+        <div class="pcard-footer">
+          <div class="pcard-price">
+            <span class="price-val">${p.price}</span><span class="price-cur">грн</span>
+            ${p.old?`<span class="price-old">${p.old} грн</span>`:''}
+          </div>
+          <button class="padd" onclick="add(${p.id})">+</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+};
+
+const pickVar=(id,i)=>{
+  sel[id]=i;
+  // update variant buttons in this card only
+  const card=document.getElementById('card-'+id);
+  card.querySelectorAll('.pvar').forEach((b,idx)=>b.classList.toggle('sel',idx===i));
+  // hide hint if was shown
+  document.getElementById('hint-'+id).classList.remove('show');
+};
+
+document.getElementById('filters').addEventListener('click',e=>{
+  const b=e.target.closest('.f-btn');if(!b)return;
+  document.querySelectorAll('.f-btn').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');fil=b.dataset.f;render();
+});
+
+const add=id=>{
+  const p=P.find(x=>x.id===id);if(!p)return;
+  if(sel[id]===null){
+    // show hint, auto-hide after 2.5s
+    const hint=document.getElementById('hint-'+id);
+    hint.classList.add('show');
+    clearTimeout(hint._t);
+    hint._t=setTimeout(()=>hint.classList.remove('show'),2500);
+    return;
+  }
+  const v=p.vars[sel[id]];
+  const key=`${id}-${sel[id]}`;
+  const ex=cart.find(x=>x.key===key);
+  ex?ex.qty++:cart.push({...p,varLabel:`${v.l}/${v.w}`,key,qty:1});
+  upCart();
+};
+
+const upCart=()=>{
+  const t=cart.reduce((s,x)=>s+x.qty,0);
+  document.getElementById('cartN').textContent=t;
+  document.getElementById('fcartN').textContent=t;
+  document.getElementById('fcart').classList.toggle('on',t>0);
+};
+
+render();
+</script>
+</body>
+</html>
