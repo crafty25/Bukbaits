@@ -273,8 +273,9 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 }
 .pvar:hover{border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.8)}
 .pvar.sel{
-  border-color:var(--acc);color:var(--acc);
-  background:var(--acc-dim);
+  border-color:rgba(255,255,255,0.35);
+  color:rgba(255,255,255,0.85);
+  background:rgba(255,255,255,0.08);
 }
 .pvar-hint{
   font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:0.5px;
@@ -297,18 +298,26 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 }
 
 .padd{
-  width:34px;height:34px;border:1px solid rgba(255,255,255,0.14);background:none;
+  height:34px;border:1px solid rgba(255,255,255,0.14);background:none;
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;color:rgba(255,255,255,0.45);font-size:18px;flex-shrink:0;
-  transition:all .15s;
+  transition:all .2s;padding:0 12px;
+  font-family:'DM Sans',sans-serif;
 }
-.padd:hover{border-color:var(--acc);color:var(--acc);background:var(--acc-dim)}
-.padd.na{
-  cursor:default;font-size:9px;letter-spacing:1px;
-  width:auto;padding:0 10px;color:rgba(255,255,255,0.2);
-  font-family:'DM Sans',sans-serif;text-transform:uppercase;
+.padd.idle{width:34px;padding:0;}
+.padd.idle:hover{border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.7)}
+.padd.ready{
+  background:var(--acc);border-color:var(--acc);
+  color:#000;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
+  font-weight:500;padding:0 16px;width:auto;
 }
-.padd.na:hover{border-color:rgba(255,255,255,0.14);color:rgba(255,255,255,0.2);background:none}
+.padd.ready:hover{background:#24a814;border-color:#24a814;}
+.padd.done{
+  border-color:rgba(255,255,255,0.14);color:rgba(255,255,255,0.3);
+  font-size:11px;letter-spacing:1px;text-transform:uppercase;
+  padding:0 12px;width:auto;cursor:default;
+}
+.padd.done:hover{border-color:rgba(255,255,255,0.14);color:rgba(255,255,255,0.3);background:none}
 
 /* ─── ABOUT ─── */
 .about{
@@ -733,7 +742,7 @@ const render=()=>{
             <span class="price-val">${p.price}</span><span class="price-cur">грн</span>
             ${p.old?`<span class="price-old">${p.old} грн</span>`:''}
           </div>
-          <button class="padd" onclick="add('${p.id}')">+</button>
+          <button class="padd idle" id="btn-${sid}" onclick="add('${p.id}')">+</button>
         </div>
       </div>
     </div>`;
@@ -742,12 +751,24 @@ const render=()=>{
   shown.forEach(p=>initSwipe(p.id.replace('#','')));
 };
 
+const updateBtn=(id)=>{
+  const sid=id.replace('#','');
+  const btn=document.getElementById('btn-'+sid);
+  if(!btn)return;
+  if(sel[id]===null){
+    btn.className='padd idle';btn.textContent='+';
+  } else {
+    btn.className='padd ready';btn.textContent='В кошик';
+  }
+};
+
 const pickVar=(id,i)=>{
   sel[id]=i;
   const sid=id.replace('#','');
   const card=document.getElementById('card-'+sid);
   card.querySelectorAll('.pvar').forEach((b,idx)=>b.classList.toggle('sel',idx===i));
   document.getElementById('hint-'+sid).classList.remove('show');
+  updateBtn(id);
 };
 
 document.getElementById('filters').addEventListener('click',e=>{
@@ -771,6 +792,16 @@ const add=id=>{
   const ex=cart.find(x=>x.key===key);
   ex?ex.qty++:cart.push({...p,varLabel:`${v.l}/${v.w}`,key,qty:1});
   upCart();
+  // показуємо підтвердження на кнопці
+  const sid=id.replace('#','');
+  const btn=document.getElementById('btn-'+sid);
+  if(btn){
+    btn.className='padd done';btn.textContent='Додано ✓';
+    clearTimeout(btn._t);
+    btn._t=setTimeout(()=>{
+      btn.className='padd ready';btn.textContent='В кошик';
+    },1800);
+  }
 };
 
 const upCart=()=>{
