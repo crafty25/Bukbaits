@@ -618,13 +618,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   </div>
   <div class="filters" id="filters">
     <button class="f-btn on" data-f="all">Всі</button>
-    <button class="f-btn" data-f="atom">Atom</button>
-    <button class="f-btn" data-f="smith">Smith</button>
-    <button class="f-btn" data-f="forest">Forest</button>
-    <button class="f-btn" data-f="waterland">Waterland</button>
-    <button class="f-btn" data-f="nories">Nories</button>
-    <button class="f-btn" data-f="delta">Delta</button>
-    <button class="f-btn" data-f="rodiocraft">Rodio Craft</button>
   </div>
   <div class="pgrid" id="pgrid"></div>
 </section>
@@ -741,6 +734,18 @@ let P=[];
 const sel={};
 let fil='all';
 
+// ─── Динамічні фільтри ───
+const renderFilters=()=>{
+  const series=[...new Set(P.map(p=>p.type).filter(Boolean))];
+  const container=document.getElementById('filters');
+  const label=s=>{
+    const map={rodiocraft:'Rodio Craft'};
+    return map[s]||(s.charAt(0).toUpperCase()+s.slice(1));
+  };
+  container.innerHTML=`<button class="f-btn on" data-f="all">Всі</button>`+
+    series.map(s=>`<button class="f-btn" data-f="${s}">${label(s)}</button>`).join('');
+};
+
 // ─── Завантаження з Sheets або кешу ───
 const loadProducts=async()=>{
   // перевіряємо кеш
@@ -751,6 +756,7 @@ const loadProducts=async()=>{
       if(Date.now()-ts<CACHE_TTL){
         P=data;
         P.forEach(p=>sel[p.id]=null);
+        renderFilters();
         render();
         return;
       }
@@ -789,6 +795,7 @@ const loadProducts=async()=>{
     P.forEach(p=>sel[p.id]=null);
     // зберігаємо в кеш
     sessionStorage.setItem(CACHE_KEY,JSON.stringify({data:P,ts:Date.now()}));
+    renderFilters();
     render();
   }catch(e){
     console.error('Помилка завантаження товарів:',e);
@@ -1081,7 +1088,7 @@ const submitOrder=()=>{
   });
 };
 
-// cartі button in nav
+// cart button in nav
 document.getElementById('cartBtn').addEventListener('click',cartOpen);
 
 loadProducts();
