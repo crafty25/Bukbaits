@@ -618,6 +618,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   </div>
   <div class="filters" id="filters">
     <button class="f-btn on" data-f="all">Всі</button>
+    <button class="f-btn" data-f="atom">Atom</button>
+    <button class="f-btn" data-f="smith">Smith</button>
+    <button class="f-btn" data-f="forest">Forest</button>
+    <button class="f-btn" data-f="waterland">Waterland</button>
+    <button class="f-btn" data-f="nories">Nories</button>
+    <button class="f-btn" data-f="delta">Delta</button>
+    <button class="f-btn" data-f="rodiocraft">Rodio Craft</button>
   </div>
   <div class="pgrid" id="pgrid"></div>
 </section>
@@ -725,23 +732,14 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 
 <script>
 // ─── Google Sheets config ───
-const SHEETS_ID='18hJc1tOdfitIXJDlXrfxgEfvHXkKKXF0F-jhgiLkBz0';
-const SHEETS_KEY='AIzaSyAwU9smw33QnDQm1az2vUzZJj3NI6dlrLU';
+const WORKER_URL='https://bukbaits-worker.m-poliakh.workers.dev';
+
 const CACHE_KEY='bukbaits_products';
 const CACHE_TTL=5*60*1000; // 5 хвилин
 
 let P=[];
 const sel={};
 let fil='all';
-
-// ─── Динамічні фільтри ───
-const renderFilters=()=>{
-  const series=[...new Set(P.map(p=>p.type).filter(Boolean))];
-  const container=document.getElementById('filters');
-  const label=s=>s.charAt(0).toUpperCase()+s.slice(1).replace('rodiocraft','Rodio Craft');
-  container.innerHTML=`<button class="f-btn on" data-f="all">Всі</button>`+
-    series.map(s=>`<button class="f-btn" data-f="${s}">${label(s)}</button>`).join('');
-};
 
 // ─── Завантаження з Sheets або кешу ───
 const loadProducts=async()=>{
@@ -753,7 +751,6 @@ const loadProducts=async()=>{
       if(Date.now()-ts<CACHE_TTL){
         P=data;
         P.forEach(p=>sel[p.id]=null);
-        renderFilters();
         render();
         return;
       }
@@ -768,7 +765,7 @@ const loadProducts=async()=>{
     </div>`;
 
   try{
-    const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEETS_ID}/values/Sheet1?key=${SHEETS_KEY}`;
+    const url=`${WORKER_URL}/products`;
     const res=await fetch(url);
     if(!res.ok) throw new Error('Sheets API error: '+res.status);
     const json=await res.json();
@@ -792,7 +789,6 @@ const loadProducts=async()=>{
     P.forEach(p=>sel[p.id]=null);
     // зберігаємо в кеш
     sessionStorage.setItem(CACHE_KEY,JSON.stringify({data:P,ts:Date.now()}));
-    renderFilters();
     render();
   }catch(e){
     console.error('Помилка завантаження товарів:',e);
@@ -916,7 +912,7 @@ const render=()=>{
         <div class="pcard-type">${p.type==='rodiocraft'?'Rodio Craft':p.type.charAt(0).toUpperCase()+p.type.slice(1)}</div>
         <div class="pcard-name">${esc(p.name)}</div>
         <div class="pcard-vars">${vars}</div>
-        <div class="pvar-hint" id="hint-${sid}">спочатку оберіть вагу</div>
+        <div class="pvar-hint" id="hint-${sid}">↑ оберіть вагу</div>
         <div class="pcard-footer">
           <div class="pcard-price">
             <span class="price-val">${p.price}</span><span class="price-cur">грн</span>
@@ -1063,15 +1059,18 @@ const submitOrder=()=>{
   const btn=document.getElementById('cartSubmit');
   btn.disabled=true;btn.textContent='Відправляємо...';
 
-  const items=cart.map(x=>`• ${x.name} (${x.varLabel}) × ${x.qty} — ${x.price*x.qty} грн`).join('\n');
   const total=cart.reduce((s,x)=>s+x.price*x.qty,0);
-  const contact=contactMethod?`Звʼязок: ${contactMethod}`:'';
-  const msg=`🎣 Нове замовлення BukBaits\n\n${items}\n\nРазом: ${total} грн\n\nІмʼя: ${name}\nТелефон: ${phone}\nМісто: ${city||'—'}\n${contact}`;
+  const payload={
+    name,phone,
+    contact:contactMethod||'',
+    city:city||'',
+    items:cart.map(x=>({name:x.name,variant:x.varLabel,qty:x.qty,price:x.price*x.qty}))
+  };
 
-  fetch('https://bukbaits-bot.YOUR_WORKER.workers.dev',{
+  fetch(`${WORKER_URL}/`,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({message:msg})
+    body:JSON.stringify(payload)
   }).then(()=>{
     btn.textContent='Замовлення відправлено ✓';
     cart=[];
