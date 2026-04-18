@@ -618,13 +618,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   </div>
   <div class="filters" id="filters">
     <button class="f-btn on" data-f="all">Всі</button>
-    <button class="f-btn" data-f="atom">Atom</button>
-    <button class="f-btn" data-f="smith">Smith</button>
-    <button class="f-btn" data-f="forest">Forest</button>
-    <button class="f-btn" data-f="waterland">Waterland</button>
-    <button class="f-btn" data-f="nories">Nories</button>
-    <button class="f-btn" data-f="delta">Delta</button>
-    <button class="f-btn" data-f="rodiocraft">Rodio Craft</button>
   </div>
   <div class="pgrid" id="pgrid"></div>
 </section>
@@ -731,14 +724,24 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 </button>
 
 <script>
-// ─── Worker config ───
-const WORKER_URL='https://bukbaits-worker.m-poliakh.workers.dev';
+// ─── Google Sheets config ───
+const SHEETS_ID='18hJc1tOdfitIXJDlXrfxgEfvHXkKKXF0F-jhgiLkBz0';
+const SHEETS_KEY='AIzaSyAwU9smw33QnDQm1az2vUzZJj3NI6dlrLU';
 const CACHE_KEY='bukbaits_products';
 const CACHE_TTL=5*60*1000; // 5 хвилин
 
 let P=[];
 const sel={};
 let fil='all';
+
+// ─── Динамічні фільтри ───
+const renderFilters=()=>{
+  const series=[...new Set(P.map(p=>p.type).filter(Boolean))];
+  const container=document.getElementById('filters');
+  const label=s=>s.charAt(0).toUpperCase()+s.slice(1).replace('rodiocraft','Rodio Craft');
+  container.innerHTML=`<button class="f-btn on" data-f="all">Всі</button>`+
+    series.map(s=>`<button class="f-btn" data-f="${s}">${label(s)}</button>`).join('');
+};
 
 // ─── Завантаження з Sheets або кешу ───
 const loadProducts=async()=>{
@@ -750,6 +753,7 @@ const loadProducts=async()=>{
       if(Date.now()-ts<CACHE_TTL){
         P=data;
         P.forEach(p=>sel[p.id]=null);
+        renderFilters();
         render();
         return;
       }
@@ -764,7 +768,7 @@ const loadProducts=async()=>{
     </div>`;
 
   try{
-    const url=`${WORKER_URL}/products`;
+    const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEETS_ID}/values/Sheet1?key=${SHEETS_KEY}`;
     const res=await fetch(url);
     if(!res.ok) throw new Error('Sheets API error: '+res.status);
     const json=await res.json();
@@ -788,6 +792,7 @@ const loadProducts=async()=>{
     P.forEach(p=>sel[p.id]=null);
     // зберігаємо в кеш
     sessionStorage.setItem(CACHE_KEY,JSON.stringify({data:P,ts:Date.now()}));
+    renderFilters();
     render();
   }catch(e){
     console.error('Помилка завантаження товарів:',e);
@@ -1063,18 +1068,10 @@ const submitOrder=()=>{
   const contact=contactMethod?`Звʼязок: ${contactMethod}`:'';
   const msg=`🎣 Нове замовлення BukBaits\n\n${items}\n\nРазом: ${total} грн\n\nІмʼя: ${name}\nТелефон: ${phone}\nМісто: ${city||'—'}\n${contact}`;
 
-  const payload={
-    name,
-    phone,
-    contact:contactMethod||'',
-    city:city||'',
-    items:cart.map(x=>({name:x.name,variant:x.varLabel,qty:x.qty,price:x.price*x.qty}))
-  };
-
-  fetch(`${WORKER_URL}/`,{
+  fetch('https://bukbaits-bot.YOUR_WORKER.workers.dev',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(payload)
+    body:JSON.stringify({message:msg})
   }).then(()=>{
     btn.textContent='Замовлення відправлено ✓';
     cart=[];
