@@ -745,11 +745,12 @@ const renderFilters=()=>{
   const series=[...new Set(P.map(p=>p.type).filter(Boolean))];
   const container=document.getElementById('filters');
   const label=s=>{
-    const map={rodiocraft:'Rodio Craft'};
+    const map={rodiocraft:'Rodio Craft','rodio craft':'Rodio Craft'};
     return map[s]||(s.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' '));
   };
   container.innerHTML=`<button class="f-btn on" data-f="all">Всі</button>`+
     series.map(s=>`<button class="f-btn" data-f="${s}">${label(s)}</button>`).join('');
+
 };
 
 // ─── Завантаження з Sheets або кешу ───
@@ -791,7 +792,7 @@ const loadProducts=async()=>{
       return {
         id:get(0),
         name:get(1),
-        type:get(2).toLowerCase().replace(/\s/g,''),
+        type:get(2).toLowerCase(),
         price:parseFloat(get(3))||0,
         old:get(4)?parseFloat(get(4)):null,
         vars:variants,
@@ -922,7 +923,7 @@ const render=()=>{
         <div class="pcard-num">${esc(p.id)}</div>
       </div>
       <div class="pcard-body">
-        <div class="pcard-type">${p.type==='rodiocraft'?'Rodio Craft':p.type.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ')}</div>
+        <div class="pcard-type">${(p.type==='rodiocraft'||p.type==='rodio craft')?'Rodio Craft':p.type.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ')}</div>
         <div class="pcard-name">${esc(p.name)}</div>
         <div class="pcard-vars">${vars}</div>
         <div class="pvar-hint" id="hint-${sid}">Потрібнои обрати вагу</div>
