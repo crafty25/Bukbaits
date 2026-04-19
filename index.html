@@ -1077,7 +1077,7 @@ const submitOrder=()=>{
     name,phone,
     contact:contactMethod||'',
     city:city||'',
-    items:cart.map(x=>({name:x.name,variant:x.varLabel,qty:x.qty,price:x.price*x.qty}))
+    items:cart.map(x=>({id:x.id,name:x.name,variant:x.varLabel,qty:x.qty,price:x.price*x.qty}))
   };
 
   fetch(`${WORKER_URL}/`,{
