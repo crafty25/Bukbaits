@@ -147,6 +147,18 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .f-btn:hover{color:#7AB8DC}
 .f-btn.on{color:#7AB8DC;border-bottom:1px solid #4A8CB8;margin-bottom:-1px}
 
+/* second filter row — names */
+.filters2{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--line);}
+.f-btn2{
+  font-family:'DM Sans',sans-serif;font-size:12px;letter-spacing:1px;text-transform:uppercase;
+  padding:10px 18px;background:none;border:none;border-right:1px solid var(--line);
+  color:rgba(255,255,255,0.35);cursor:pointer;transition:all .15s;
+}
+.f-btn2:last-child{border-right:none}
+.f-btn2:hover{color:rgba(255,255,255,0.65)}
+.f-btn2.on{color:#fff;border-bottom:1px solid rgba(255,255,255,0.4);margin-bottom:-1px}
+.filters2:empty,.filters2.hidden{display:none}
+
 /* ─── GRID 3-col ─── */
 .pgrid{
   display:grid;
@@ -658,6 +670,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   <div class="filters" id="filters">
     <button class="f-btn on" data-f="all">Всі</button>
   </div>
+  <div class="filters2" id="filters2"></div>
   <div class="pgrid" id="pgrid"></div>
 </section>
 
@@ -776,6 +789,7 @@ const CACHE_TTL=5*60*1000; // 5 хвилин
 let P=[];
 const sel={};
 let fil='all';
+let filName='all';
 
 // ─── Динамічні фільтри ───
 const renderFilters=()=>{
@@ -787,7 +801,17 @@ const renderFilters=()=>{
   };
   container.innerHTML=`<button class="f-btn on" data-f="all">Всі</button>`+
     series.map(s=>`<button class="f-btn" data-f="${s}">${label(s)}</button>`).join('');
+  renderNameFilters();
+};
 
+const renderNameFilters=()=>{
+  const pool=fil==='all'?P:P.filter(x=>x.type===fil);
+  const names=[...new Set(pool.map(p=>p.name).filter(Boolean))].sort();
+  const container=document.getElementById('filters2');
+  if(names.length<=1){container.innerHTML='';filName='all';return;}
+  container.innerHTML=`<button class="f-btn2 on" data-n="all">Всі</button>`+
+    names.map(n=>`<button class="f-btn2" data-n="${n}">${n}</button>`).join('');
+  filName='all';
 };
 
 // ─── Завантаження з Sheets або кешу ───
@@ -945,7 +969,8 @@ document.addEventListener('keydown',e=>{
 });
 
 const render=()=>{
-  const shown=fil==='all'?P:P.filter(x=>x.type===fil);
+  let shown=fil==='all'?P:P.filter(x=>x.type===fil);
+  if(filName!=='all') shown=shown.filter(x=>x.name===filName);
   document.getElementById('pgrid').innerHTML=shown.map((p,pi)=>{
     const sid=p.id.replace('#','');
     const imgs=p.img?p.img.split(',').map(s=>s.trim()).filter(Boolean):[];
@@ -1001,7 +1026,15 @@ const pickVar=(id,i)=>{
 document.getElementById('filters').addEventListener('click',e=>{
   const b=e.target.closest('.f-btn');if(!b)return;
   document.querySelectorAll('.f-btn').forEach(x=>x.classList.remove('on'));
-  b.classList.add('on');fil=b.dataset.f;render();
+  b.classList.add('on');fil=b.dataset.f;
+  renderNameFilters();
+  render();
+});
+
+document.getElementById('filters2').addEventListener('click',e=>{
+  const b=e.target.closest('.f-btn2');if(!b)return;
+  document.querySelectorAll('.f-btn2').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');filName=b.dataset.n;render();
 });
 
 const add=id=>{
