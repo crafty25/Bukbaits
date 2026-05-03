@@ -672,7 +672,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   </div>
   <div class="filters2" id="filters2"></div>
   <div class="pgrid" id="pgrid"></div>
-  <div id="load-more-wrap" style="display:none;justify-content:center;padding:40px 0 60px">
+  <div id="load-more-wrap" style="display:none;flex-direction:column;align-items:center;gap:12px;padding:40px 0 60px">
     <button id="load-more-btn" onclick="visibleCount+=PAGE_SIZE;render()" style="
       font-family:'DM Sans',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;
       color:var(--text2);background:transparent;border:1px solid var(--line2);
@@ -681,6 +681,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
        onmouseout="this.style.color='var(--text2)';this.style.borderColor='var(--line2)'">
       Load More
     </button>
+    <div id="load-more-count" style="font-family:'DM Sans',sans-serif;font-size:12px;letter-spacing:1px;color:var(--text3)"></div>
   </div>
 </section>
 
@@ -1029,6 +1030,8 @@ const render=()=>{
   const more=document.getElementById('load-more-wrap');
   if(shown.length>visibleCount){
     more.style.display='flex';
+    document.getElementById('load-more-count').textContent=
+      `Showing ${Math.min(visibleCount,shown.length)} of ${shown.length} items`;
   } else {
     more.style.display='none';
   }
