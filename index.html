@@ -672,6 +672,16 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   </div>
   <div class="filters2" id="filters2"></div>
   <div class="pgrid" id="pgrid"></div>
+  <div id="load-more-wrap" style="display:none;justify-content:center;padding:40px 0 60px">
+    <button id="load-more-btn" onclick="visibleCount+=PAGE_SIZE;render()" style="
+      font-family:'DM Sans',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;
+      color:var(--text2);background:transparent;border:1px solid var(--line2);
+      padding:14px 40px;cursor:pointer;transition:color .2s,border-color .2s;
+    " onmouseover="this.style.color='var(--text)';this.style.borderColor='rgba(255,255,255,0.3)'"
+       onmouseout="this.style.color='var(--text2)';this.style.borderColor='var(--line2)'">
+      Load More
+    </button>
+  </div>
 </section>
 
 <!-- ABOUT -->
@@ -801,6 +811,8 @@ let P=[];
 const sel={};
 let fil='all';
 let filName='all';
+const PAGE_SIZE=16;
+let visibleCount=PAGE_SIZE;
 
 // ─── Динамічні фільтри ───
 const renderFilters=()=>{
@@ -982,7 +994,8 @@ document.addEventListener('keydown',e=>{
 const render=()=>{
   let shown=fil==='all'?P:P.filter(x=>x.type===fil);
   if(filName!=='all') shown=shown.filter(x=>x.name===filName);
-  document.getElementById('pgrid').innerHTML=shown.map((p,pi)=>{
+  const visible=shown.slice(0,visibleCount);
+  document.getElementById('pgrid').innerHTML=visible.map((p,pi)=>{
     const sid=p.id.replace('#','');
     const imgs=p.img?p.img.split(',').map(s=>s.trim()).filter(Boolean):[];
     carState[sid]={imgs,cur:0};
@@ -1010,8 +1023,15 @@ const render=()=>{
       </div>
     </div>`;
   }).join('');
-  // ініціалізуємо свайп після рендеру
-  shown.forEach(p=>initSwipe(p.id.replace('#','')));
+  // swipe init
+  visible.forEach(p=>initSwipe(p.id.replace('#','')));
+  // load more button
+  const more=document.getElementById('load-more-wrap');
+  if(shown.length>visibleCount){
+    more.style.display='flex';
+  } else {
+    more.style.display='none';
+  }
 };
 
 const updateBtn=(id)=>{
@@ -1038,6 +1058,7 @@ document.getElementById('filters').addEventListener('click',e=>{
   const b=e.target.closest('.f-btn');if(!b)return;
   document.querySelectorAll('.f-btn').forEach(x=>x.classList.remove('on'));
   b.classList.add('on');fil=b.dataset.f;
+  visibleCount=PAGE_SIZE;
   renderNameFilters();
   render();
 });
@@ -1045,7 +1066,7 @@ document.getElementById('filters').addEventListener('click',e=>{
 document.getElementById('filters2').addEventListener('click',e=>{
   const b=e.target.closest('.f-btn2');if(!b)return;
   document.querySelectorAll('.f-btn2').forEach(x=>x.classList.remove('on'));
-  b.classList.add('on');filName=b.dataset.n;render();
+  b.classList.add('on');filName=b.dataset.n;visibleCount=PAGE_SIZE;render();
 });
 
 const add=id=>{
