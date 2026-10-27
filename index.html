@@ -761,6 +761,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
       <div class="cart-form-title">Your details</div>
       <input class="cart-field" id="cf-name" placeholder="Your name" type="text">
       <input class="cart-field" id="cf-phone" placeholder="Phone number" type="tel">
+      <input class="cart-field" id="cf-email" placeholder="Email" type="email" required>
       <input class="cart-field" id="cf-city" placeholder="City / Country" type="text">
 
       <div class="cart-form-title" style="margin-top:4px">How to contact you</div>
@@ -1169,10 +1170,13 @@ const removeItem=i=>{
 const submitOrder=()=>{
   const name=document.getElementById('cf-name').value.trim();
   const phone=document.getElementById('cf-phone').value.trim();
+  const email=document.getElementById('cf-email').value.trim();
   const city=document.getElementById('cf-city').value.trim();
-  if(!name||!phone){
+  const emailOk=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  if(!name||!phone||!emailOk){
     document.getElementById('cf-name').style.borderColor=name?'':'#ff6b6b';
     document.getElementById('cf-phone').style.borderColor=phone?'':'#ff6b6b';
+    document.getElementById('cf-email').style.borderColor=emailOk?'':'#ff6b6b';
     return;
   }
   const btn=document.getElementById('cartSubmit');
@@ -1180,7 +1184,7 @@ const submitOrder=()=>{
 
   const total=cart.reduce((s,x)=>s+x.price*x.qty,0);
   const payload={
-    name,phone,
+    name,phone,email,
     contact:contactMethod||'',
     city:city||'',
     items:cart.map(x=>({id:x.id,name:`${x.type?x.type+' — ':''}${x.name}`,variant:x.varLabel,qty:x.qty,price:x.price*x.qty}))
