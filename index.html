@@ -759,10 +759,10 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 
     <div class="cart-form" id="cartForm" style="display:none">
       <div class="cart-form-title">Your details</div>
-      <input class="cart-field" id="cf-name" placeholder="Your name" type="text">
-      <input class="cart-field" id="cf-phone" placeholder="Phone number" type="tel">
+      <input class="cart-field" id="cf-name" placeholder="Your name" type="text" required>
+      <input class="cart-field" id="cf-phone" placeholder="Phone number" type="tel" required>
       <input class="cart-field" id="cf-email" placeholder="Email" type="email" required>
-      <input class="cart-field" id="cf-city" placeholder="City / Country" type="text">
+      <input class="cart-field" id="cf-city" placeholder="City / Country" type="text" required>
 
       <div class="cart-form-title" style="margin-top:4px">How to contact you</div>
       <div class="cart-contacts">
@@ -1131,6 +1131,7 @@ const pickContact=c=>{
   contactMethod=c;
   document.querySelectorAll('.cart-contact-btn').forEach(b=>{
     b.classList.toggle('sel',b.dataset.c===c);
+    b.style.borderColor='';
   });
 };
 
@@ -1173,10 +1174,14 @@ const submitOrder=()=>{
   const email=document.getElementById('cf-email').value.trim();
   const city=document.getElementById('cf-city').value.trim();
   const emailOk=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  if(!name||!phone||!emailOk){
+  if(!name||!phone||!emailOk||!city||!contactMethod){
     document.getElementById('cf-name').style.borderColor=name?'':'#ff6b6b';
     document.getElementById('cf-phone').style.borderColor=phone?'':'#ff6b6b';
     document.getElementById('cf-email').style.borderColor=emailOk?'':'#ff6b6b';
+    document.getElementById('cf-city').style.borderColor=city?'':'#ff6b6b';
+    document.querySelectorAll('.cart-contact-btn').forEach(b=>{
+      b.style.borderColor=contactMethod?'':'#ff6b6b';
+    });
     return;
   }
   const btn=document.getElementById('cartSubmit');
